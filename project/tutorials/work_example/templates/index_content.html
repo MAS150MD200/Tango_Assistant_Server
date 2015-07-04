@@ -1,0 +1,25 @@
+{% extends "index_main.html" %}
+{% block content %}
+
+<!--<h2 class="sub-header">Results:</h2>-->
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Graphite Metric:</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for param in params|sort %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ param|e }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
