@@ -16,7 +16,9 @@ class Root:
     @cherrypy.expose
     def result(self, queryParameters=None):
         tmpl = env.get_template('index_content.html')
-        queryParameters_list = sorted(queryParameters.split(" "))
+        #add chech for several spaces.
+
+        queryParameters_list = queryParameters.strip().split(" ")
         return tmpl.render(params=queryParameters_list)
 
 

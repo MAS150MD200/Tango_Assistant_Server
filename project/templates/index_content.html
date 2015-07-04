@@ -12,7 +12,7 @@
         </thead>
 
         <tbody>
-            {% for param in params %}
+            {% for param in params|sort %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ param|e }}</td>

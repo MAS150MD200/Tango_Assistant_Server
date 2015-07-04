@@ -28,7 +28,8 @@
         <form class="form-signin" method="get" action="result">
             <!--<h2 class="form-signin-heading">Please sign in</h2>-->
             <!--<label for="inputEmail" class="sr-only">Email address</label>-->
-            <input id="queryParameters" name="queryParameters" class="form-control" placeholder="Input query parameters..." required autofocus>
+
+            <input id="queryParameters" name="queryParameters" value="{{ params|join(' ') }}" class="form-control" placeholder="Input query parameters..." required autofocus>
             <br>
             <!--<button class="btn btn-lg btn-primary btn-block" type="submit">Push</button>-->
             <button class="btn btn-primary" type="submit">Push</button>
