@@ -3,23 +3,33 @@
 
 <!--<h2 class="sub-header">Results:</h2>-->
 <div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>№</th>
-                <th>Graphite Metric:</th>
-            </tr>
-        </thead>
 
-        <tbody>
-            {% for metric in metrics|sort %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ metric|e }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <form class="form-signin" method="get" action="grafanaAPI">
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>№</th>
+                    <th>Graphite Metric:</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for metric in metrics|sort %}
+                <tr>
+                    <td><input type="radio" name="metricRadio" value="{{ metric|e }}"> </td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ metric|e }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="btn btn-primary" type="submit">Push to Graph</button>
+
+    </form>
+
 </div>
 
 {% endblock %}

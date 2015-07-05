@@ -29,6 +29,12 @@ class Root:
         #pass queryParameters_list to the HTML page template. To prevent clear form after submit.
         return tmpl.render(metrics=metricsFound, params=queryParameters_list)
 
+    @cherrypy.expose
+    def grafanaAPI(self, metricRadio=None):
+
+        pp(metricRadio)
+        return
+
 
 
 if __name__ == '__main__':
@@ -44,7 +50,7 @@ if __name__ == '__main__':
         }
     }
 
-    #need to place it to the conf.
+    #TODO: need to place it to the conf.
     cherrypy.config.update({'server.socket_host': '0.0.0.0',
                             'server.socket_port': 8080,
                             })
