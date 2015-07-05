@@ -12,10 +12,10 @@
         </thead>
 
         <tbody>
-            {% for param in params|sort %}
+            {% for metric in metrics|sort %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td>{{ param|e }}</td>
+                <td>{{ metric|e }}</td>
             </tr>
             {% endfor %}
         </tbody>

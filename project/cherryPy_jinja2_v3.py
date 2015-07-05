@@ -3,9 +3,14 @@ __author__ = 'Antonio'
 import cherrypy
 from jinja2 import Environment, FileSystemLoader
 import os, os.path
+import graphiteParser
 from pprint import pprint as pp
 
+
+#Global variables.
+GRAPHITE_DB = "../all_data_column.txt"
 env = Environment(loader=FileSystemLoader('templates'))
+
 
 class Root:
     @cherrypy.expose
@@ -16,10 +21,13 @@ class Root:
     @cherrypy.expose
     def result(self, queryParameters=None):
         tmpl = env.get_template('index_content.html')
-        #add chech for several spaces.
 
+        #TODO: add chech for several spaces.
         queryParameters_list = queryParameters.strip().split(" ")
-        return tmpl.render(params=queryParameters_list)
+        metricsFound = graphiteParser.graphiteFileParser(GRAPHITE_DB, queryParameters_list)
+
+        #pass queryParameters_list to the HTML page template. To prevent clear form after submit.
+        return tmpl.render(metrics=metricsFound, params=queryParameters_list)
 
 
 

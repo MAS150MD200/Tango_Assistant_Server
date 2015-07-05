@@ -29,6 +29,7 @@
             <!--<h2 class="form-signin-heading">Please sign in</h2>-->
             <!--<label for="inputEmail" class="sr-only">Email address</label>-->
 
+            <!--value="{{ params|join(' ') }} - to protect data in form after submit-->
             <input id="queryParameters" name="queryParameters" value="{{ params|join(' ') }}" class="form-control" placeholder="Input query parameters..." required autofocus>
             <br>
             <!--<button class="btn btn-lg btn-primary btn-block" type="submit">Push</button>-->
