@@ -18,7 +18,7 @@
             <tbody>
                 {% for metric in metrics|sort %}
                 <tr>
-                    <td><input type="radio" name="metricRadio" value="{{ metric|e }}"> </td>
+                    <td><input type="radio" name="metricRadio" value="{{ metric|e }}" required> </td>
                     <td>{{ loop.index }}</td>
                     <td>{{ metric|e }}</td>
                 </tr>
