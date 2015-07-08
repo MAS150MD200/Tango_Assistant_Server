@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/static/bootstrap-3.3.5-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--<link href="/static/bootstrap-3.3.5-dist/css/dashboard.css" rel="stylesheet">-->
+    <!--<link href="/static/bootstrap-3.3.5-dist/css/jumbotron-narrow.css" rel="stylesheet">-->
+    <link href="/static/bootstrap-3.3.5-dist/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <title></title>
+</head>
+<body>
+
+    <script>
+        function myFunction() {
+        window.open("index", "_self");
+        }
+    </script>
+
+    <div class="container">
+
+        <div class="header clearfix">
+
+            <h3 class="text-muted">Graphite Metrics</h3>
+        </div>
+
+        <br>
+
+        <iframe src=http://grafana.tangome.gbl/grafana/#/dashboard/script/scripted_spb_noc.js?name={{ new_graph_url }} width="1200" height="500"></iframe>
+
+        <nav>
+            <ul class="nav nav-pills pull-left">
+                <button class="btn btn-primary" onclick="myFunction()">Home</button>
+            </ul>
+        </nav>
+
+    </div>
+
+</body>
+</html>
