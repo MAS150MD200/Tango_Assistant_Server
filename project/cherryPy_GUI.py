@@ -72,5 +72,7 @@ if __name__ == '__main__':
                             'server.socket_port': 8080,
                             })
 
+    # http://127.0.0.1:8080/GSE/
+    # cherrypy.quickstart(Root(),'/', conf)
     cherrypy.quickstart(Root(),'/', conf)
 
