@@ -8,7 +8,7 @@ import random
 
 # CONSTANT VARIABLES.
 USERNAME = "atsvetkov"
-PASSWORD = "ClusterFork9"
+PASSWORD = "password"
 URL = "http://confluence.tango.corp/display/EN/Tango+Infrastructure+Naming+Convention"
 
 """
