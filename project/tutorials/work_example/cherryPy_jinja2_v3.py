@@ -10,12 +10,12 @@ env = Environment(loader=FileSystemLoader('templates'))
 class Root:
     @cherrypy.expose
     def index(self):
-        tmpl = env.get_template('index_main.html')
+        tmpl = env.get_template('index_gse_search.html')
         return tmpl.render()
 
     @cherrypy.expose
     def result(self, queryParameters=None):
-        tmpl = env.get_template('index_content.html')
+        tmpl = env.get_template('index_gse_result.html')
         #add chech for several spaces.
 
         queryParameters_list = queryParameters.strip().split(" ")

@@ -5,7 +5,6 @@ from jinja2 import Environment, FileSystemLoader
 import os, os.path
 import time
 import graphiteParser
-# import grafana_dashboard_API
 from pprint import pprint as pp
 
 
@@ -20,15 +19,14 @@ class Root:
         tmpl = env.get_template('index_start.html')
         return tmpl.render()
 
-
     @cherrypy.expose
-    def gse(self):
-        tmpl = env.get_template('index_main.html')
+    def gse_search(self):
+        tmpl = env.get_template('index_gse_search.html')
         return tmpl.render()
 
     @cherrypy.expose
-    def result(self, queryParameters=None):
-        tmpl = env.get_template('index_content.html')
+    def gse_result(self, queryParameters=None):
+        tmpl = env.get_template('index_gse_result.html')
 
         #TODO: add chech for several spaces.
         queryParameters_list = queryParameters.strip().split(" ")
@@ -37,17 +35,6 @@ class Root:
         #pass queryParameters_list to the HTML page template. To prevent clear form after submit.
         return tmpl.render(metrics=metricsFound, params=queryParameters_list)
 
-    # @cherrypy.expose
-    # def grafana_create_dashboard_API(self, metricRadio=None):
-    #
-    #     #DEBUG
-    #     # print(metricRadio)
-    #     grafana_API_call_status,  grafana_new_dashboard_url = grafana_dashboard_API.createDashboard(metricRadio)
-    #
-    #     time.sleep(1)
-    #
-    #     tmpl = env.get_template('index_grafana.html')
-    #     return tmpl.render(new_graph_url=grafana_new_dashboard_url)
 
     @cherrypy.expose
     def scripted_dashboard(self, metricRadio=None):
