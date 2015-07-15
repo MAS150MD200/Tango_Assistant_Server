@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from pprint import pprint as pp
 import re
+import random
 
 # CONSTANT VARIABLES.
 USERNAME = "atsvetkov"
@@ -70,7 +71,9 @@ def htmlTableToDict(html_table):
     for row in soup.find_all('tr'):
         aux = row.find_all('td')
         try:
-            results[aux[0].text] = aux[1].text
+            # results[aux[0].text] = aux[1].text
+            # to prevent duplicate keys.
+            results[aux[0].text + str(random.randrange(100, 999))] = aux[1].text
         except Exception:
             pass
 
@@ -113,22 +116,32 @@ def resolve_server_name(server_name):
                "5Service Type" : server_name[7:-3]
                }
 
+    host_name_dict_result = {}
+
     for k1,v1 in host_name_dict.items():
+        host_name_dict_result[k1] = []
         for k2, v2 in convention_dict.items():
             for k3,v3 in v2.items():
-                if v1 == k3:
-                    # print(k1, v1, k3, v3)
-                    host_name_dict[k1] = v3
+                if v1 == k3[:-3]:                   # remove random number.
+                    print(k1, v1, k3, v3)
+                    host_name_dict_result[k1].append(v3)
+                elif (server_name[6] + v1) == k3[:-3]:   # (server_name[6] + v1) workaround for Service Types.
+                    print(k1, v1, k3, v3)
+                    host_name_dict_result[k1].append(v3)
+        if not host_name_dict_result[k1]:
+            host_name_dict_result[k1] = ["Can't determine"]
+
+    host_name_dict_result["6Host Number"] = [server_name[-3:]]
 
     # DEBUG.
-    # pp(host_name_dict)
+    # pp(host_name_dict_result)
 
-    return(host_name_dict)
+    return(host_name_dict_result)
 
 
 def main():
 
-    test_name = "us0602afgd001"
+    test_name = "us0101bnq001"
     result = resolve_server_name(test_name)
     pp(result)
 
