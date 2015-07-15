@@ -5,7 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 import os, os.path
 import time
 import graphiteParser
-import grafana_dashboard_API
+# import grafana_dashboard_API
 from pprint import pprint as pp
 
 
@@ -17,6 +17,12 @@ env = Environment(loader=FileSystemLoader('templates'))
 class Root:
     @cherrypy.expose
     def index(self):
+        tmpl = env.get_template('index_start.html')
+        return tmpl.render()
+
+
+    @cherrypy.expose
+    def gse(self):
         tmpl = env.get_template('index_main.html')
         return tmpl.render()
 
@@ -73,6 +79,6 @@ if __name__ == '__main__':
                             })
 
     # cherrypy.quickstart(Root(),'/', conf)
-    cherrypy.quickstart(Root(),'/GSE/', conf)
+    cherrypy.quickstart(Root(),'/TAS/', conf)
 
 
