@@ -14,7 +14,7 @@
       <div class="header clearfix">
         <nav>
           <ul class="nav nav-pills pull-right">
-            <li role="presentation" class="active"><a href="#">About</a></li>
+            <li role="presentation" class="active" onclick="alert('Hello world!')"><a href="#">About</a></li>
           </ul>
         </nav>
         <h3 class="text-muted">Tango Assistant Server</h3>
@@ -22,10 +22,11 @@
 
       <div class="jumbotron">
         <h1>Welcome to TAS %username%</h1>
-        <p class="lead">I don't know what to write here, but obviously something I have to write, otherwise the page will seem incomplete.</p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button">Server Name Resolver</a></p>
-        <p><a class="btn btn-lg btn-success" href="gse_search" role="button">Graphite Search Engine</a></p>
-      </div>
+        <p class="lead">I don't know what to write here, but obviously I have to write something, otherwise the page will seem incomplete.</p>
+            <div class="btn-group">
+                <p><a class="btn btn-lg btn-primary btn-block" href="name_resolver" role="button">Server Name Resolver</a></p>
+                <p><a class="btn btn-lg btn-primary btn-block" href="gse_search" role="button">Graphite Search Engine</a></p>
+            </div>
       </div>
 
 

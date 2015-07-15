@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 import os, os.path
 import time
 import graphiteParser
+import name_resolver_se
 from pprint import pprint as pp
 
 
@@ -19,10 +20,12 @@ class Root:
         tmpl = env.get_template('index_start.html')
         return tmpl.render()
 
+
     @cherrypy.expose
     def gse_search(self):
         tmpl = env.get_template('index_gse_search.html')
         return tmpl.render()
+
 
     @cherrypy.expose
     def gse_result(self, queryParameters=None):
@@ -42,9 +45,16 @@ class Root:
         return tmpl.render(new_graph_url=metricRadio)
 
 
+    @cherrypy.expose
+    def name_resolver(self, server_name_form=""):
+        tmpl = env.get_template('index_name_resolver.html')
 
+        host_name_dict = {}
 
+        if server_name_form:
+            host_name_dict = name_resolver_se.resolve_server_name(server_name_form)
 
+        return tmpl.render(server_name_form_to_tmpl=server_name_form, host_name_dict_to_tmpl=host_name_dict)
 
 
 if __name__ == '__main__':

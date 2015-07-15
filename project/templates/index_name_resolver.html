@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/TAS/static/bootstrap-3.3.5-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--<link href="/static/bootstrap-3.3.5-dist/css/jumbotron-narrow.css" rel="stylesheet">-->
+
+    <title></title>
+</head>
+<body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="index">Home</a></li>
+            <li role="presentation" class="active" onclick="alert('Hello world!')"><a href="#">About</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Server Name Resolver</h3>
+      </div>
+
+        <br>
+
+        <form class="form-signin" method="get" action="name_resolver">
+            <!--value="{{ params|join(' ') }} - to protect data in form after submit-->
+            <input id="queryParametersID" name="server_name_form" value="{{ server_name_form_to_tmpl }}" class="form-control" placeholder="Input server name..." required autofocus>
+            <br>
+            <button class="btn btn-primary" type="submit">Resolve</button>
+        </form>
+
+        <br>
+
+        <table class="table table-striped">
+            <tbody>
+
+                {% for sorted_kv in host_name_dict_to_tmpl|dictsort %}
+                <tr>
+                    <td>{{ sorted_kv[0][1:]|e }}</td>
+                    <td>{{ sorted_kv[1]|e }}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+
+    </div> <!-- /container -->
+
+
+</body>
+</html>
