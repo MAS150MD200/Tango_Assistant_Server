@@ -8,8 +8,10 @@ import random
 
 # CONSTANT VARIABLES.
 USERNAME = "atsvetkov"
-PASSWORD = "password"
+PASSWORD = "ClusterFork9"
 URL = "http://confluence.tango.corp/display/EN/Tango+Infrastructure+Naming+Convention"
+# URL = "http://grafana.tangome.gbl/TAS/static/TangoInfrastructureNamingConventionEngineeringTango.htm"
+# URL = "http://127.0.0.1:8080/TAS/static/TangoInfrastructureNamingConventionEngineeringTango.htm"
 
 """
 CUSTOM TAGS:
