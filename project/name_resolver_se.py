@@ -9,9 +9,9 @@ import random
 # CONSTANT VARIABLES.
 USERNAME = "atsvetkov"
 PASSWORD = "password"
-URL = "http://confluence.tango.corp/display/EN/Tango+Infrastructure+Naming+Convention"
+# URL = "http://confluence.tango.corp/display/EN/Tango+Infrastructure+Naming+Convention"
 # URL = "http://grafana.tangome.gbl/TAS/static/TangoInfrastructureNamingConventionEngineeringTango.htm"
-# URL = "http://127.0.0.1:8080/TAS/static/TangoInfrastructureNamingConventionEngineeringTango.htm"
+URL = "http://127.0.0.1:8080/TAS/static/TangoInfrastructureNamingConventionEngineeringTango.htm"
 
 """
 CUSTOM TAGS:
@@ -110,6 +110,19 @@ def resolve_server_name(server_name):
     html_content = getContent(URL, USERNAME, PASSWORD)
     convention_dict = create_conventions_dict(html_content)
 
+    if re.search("^[a-z]{2}\d{4}$", server_name):
+        server_name = server_name + "."*6
+    elif re.search("^[a-z]+$", server_name):
+        server_name = "."*6 + server_name + "."*3
+    elif re.search("^[a-z]{2}\d{4}[a-z]+$", server_name):
+        server_name = server_name + "."*3
+    elif re.search("^[a-z]{3,5}\d{3}$", server_name):
+        server_name = "."*6 + server_name
+    elif re.search("^[a-z]{2}\d{4}[a-z]{3,5}\d{3}$", server_name):
+        server_name = server_name
+    else:
+        server_name = "."*12
+
     host_name_dict = {"6Host Number" : server_name[-3:],
                "1Region" : server_name[:2],
                "2Site" : server_name[:4],
@@ -131,7 +144,7 @@ def resolve_server_name(server_name):
                     print(k1, v1, k3, v3)
                     host_name_dict_result[k1].append(v3)
         if not host_name_dict_result[k1]:
-            host_name_dict_result[k1] = ["Can't determine"]
+            host_name_dict_result[k1] = ["..."]
 
     host_name_dict_result["6Host Number"] = [server_name[-3:]]
 

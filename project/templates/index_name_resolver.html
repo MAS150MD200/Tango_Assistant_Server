@@ -25,7 +25,7 @@
 
         <form class="form-signin" method="get" action="name_resolver">
             <!--value="{{ params|join(' ') }} - to protect data in form after submit-->
-            <input id="queryParametersID" name="server_name_form" value="{{ server_name_form_to_tmpl }}" class="form-control" placeholder="Input server name..." required autofocus>
+            <input id="queryParametersID" name="server_name_form" value="{{ server_name_form_to_tmpl }}" class="form-control" placeholder="Input server name (example: us0101abs001 or us0101abs or abs or bs)" required autofocus>
             <br>
             <button class="btn btn-primary" type="submit">Resolve</button>
         </form>
