@@ -2,9 +2,32 @@
 {% block content %}
 
 <!--<h2 class="sub-header">Results:</h2>-->
+
+<script>
+function submitWithCheck()
+    {
+        var checkboxs=document.getElementsByName("metricsCheckBox");
+        var okay=false;
+        for(var i=0,l=checkboxs.length;i<l;i++)
+        {
+            if(checkboxs[i].checked)
+            {
+                okay=true;
+                break;
+            }
+        }
+        if (okay) {
+            document.getElementById("metricsToGrafana").submit();
+        } else {
+            alert("Please check a checkbox");
+        }
+    }
+</script>
+
+
 <div class="table-responsive">
 
-    <form class="form-signin" method="get" action="scripted_dashboard">
+    <form class="form-signin" method="get" action="scripted_dashboard" id="metricsToGrafana">
 
         <table class="table table-striped">
             <thead>
@@ -18,7 +41,7 @@
             <tbody>
                 {% for metric in metrics|sort %}
                 <tr>
-                    <td><input type="radio" name="metricRadio" value="{{ metric|e }}" required> </td>
+                    <td><input type="checkbox" name="metricsCheckBox" value="{{ metric|e }}"> </td>
                     <td>{{ loop.index }}</td>
                     <td>{{ metric|e }}</td>
                 </tr>
@@ -26,9 +49,10 @@
             </tbody>
         </table>
 
-        <button class="btn btn-success" type="submit">Push to Grafana</button>
+        <!--<button class="btn btn-success" type="submit">Push to Grafana</button>-->
 
     </form>
+    <button class="btn btn-success" onclick="submitWithCheck()">Push to Grafana</button>
 
 </div>
 

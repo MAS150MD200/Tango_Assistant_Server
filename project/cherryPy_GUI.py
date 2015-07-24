@@ -40,9 +40,16 @@ class Root:
 
 
     @cherrypy.expose
-    def scripted_dashboard(self, metricRadio=None):
+    def scripted_dashboard(self, metricsCheckBox=None):
+
+        # in case of checked only one checkbox.
+        if isinstance(metricsCheckBox, str):
+            metricsCheckBox = [metricsCheckBox]
+
+        metricsCheckBox_joined = ",".join(metricsCheckBox)
+
         tmpl = env.get_template('index_grafana_scripted_dashboard.html')
-        return tmpl.render(new_graph_url=metricRadio)
+        return tmpl.render(metrics=metricsCheckBox_joined)
 
 
     @cherrypy.expose
