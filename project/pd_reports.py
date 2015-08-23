@@ -197,6 +197,7 @@ def generate_report_list(incidents_dict, group_incidents):
         report_list.append("-" * 100)
         report_list.append("{0}) Incident(s) number:\t{1}".format(num, group_incidents_txt))
         report_list.append("Opened on:\t\t{0}".format(incidents_dict[incident_numbers[0]]['created_on']))
+        report_list.append("Description:\t\t{0}".format(description_txt))
 
         report_list.append("Host:\t\t\t{0}".format(hostname_txt))
         report_list.append("Service:\t\t\t")
@@ -208,11 +209,11 @@ def generate_report_list(incidents_dict, group_incidents):
 
         # report_list.append("Last status changed on: {0}".format(incidents_dict[incident_numbers[0]]['last_status_change_on']))
 
-        report_list.append("Details:")
-        report_list.append("    description:\t\t{0}".format(description_txt))
-        report_list.append("    PD link:\t\t{0}".format(incidents_dict[incident_numbers[0]]['html_url']))
+        # report_list.append("Details:")
 
-        report_list.append('Notes:\t\tNone')
+        report_list.append("PD link:\t\t{0}".format(incidents_dict[incident_numbers[0]]['html_url']))
+
+        report_list.append('Details:\t\tNone')
         report_list.append('Ticket number:\tNone')
         report_list.append('Next actions:\tNone')
 
