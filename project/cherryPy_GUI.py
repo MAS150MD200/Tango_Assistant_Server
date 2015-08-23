@@ -14,9 +14,6 @@ from pprint import pprint as pp
 GRAPHITE_DB = "../all_data_column.txt"
 env = Environment(loader=FileSystemLoader('templates'))
 
-# GLOBAL FUNCTION FOR PD REPORTS, JINJA2:
-env.globals['pd_report_global'] = pd_reports.get_report
-
 
 class Root:
     @cherrypy.expose
@@ -72,8 +69,13 @@ class Root:
     def pd_report_generator(self, form_time_since="", form_time_until=""):
         tmpl = env.get_template('pd_report.html')
 
-        return tmpl.render(time_since=form_time_since, time_until=form_time_until)
+        print(form_time_since, form_time_until)
 
+        report_list = []
+        if form_time_since and form_time_until:
+            report_list = pd_reports.get_report(form_time_since, form_time_until)
+
+        return tmpl.render(form_time_since_to_tmpl=form_time_since, form_time_until_to_tmpl=form_time_until, report_list_to_tmpl=report_list)
 
 
 if __name__ == '__main__':

@@ -31,7 +31,7 @@
 
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon1">Time since:</span>
-                        <input id="time_since" name="form_time_since" value="{{ time_since }}" class="form-control" placeholder="example: 2015-08-17 09:55:30Z" required autofocus aria-describedby="basic-addon1">
+                        <input id="time_since" name="form_time_since" value="{{ form_time_since_to_tmpl }}" class="form-control" placeholder="example: 2015-08-17 09:55:30Z" required autofocus aria-describedby="basic-addon1">
                     </div>
 
                 </div>
@@ -39,7 +39,7 @@
                 <div class="col-lg-6">
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon2">Time until:</span>
-                        <input id="time_until" name="form_time_until" value="{{ time_until }}" class="form-control" placeholder="example: 2015-08-17 09:55:30Z" required autofocus  aria-describedby="basic-addon2">
+                        <input id="time_until" name="form_time_until" value="{{ form_time_until_to_tmpl }}" class="form-control" placeholder="example: 2015-08-17 09:55:30Z" required autofocus  aria-describedby="basic-addon2">
                     </div>
 
                 </div>
@@ -52,7 +52,10 @@
         <br>
 
 
-        {{ pd_report_global('2015-08-16 09:55:30Z', '2015-08-17 09:55:30Z') }}
+        {% for pd_report_line in report_list_to_tmpl %}
+            <br>
+            {{ pd_report_line|e }}
+        {% endfor %}
 
 
     </div> <!-- /container -->

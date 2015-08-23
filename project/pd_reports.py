@@ -178,7 +178,7 @@ def generate_report_list(incidents_dict, group_incidents):
 
     # REPORT HEADER:
     report_list.append("Total number of incidents: {0}\n".format(inc_cntr))
-    report_list.append("Action items for next shift:\n")
+    report_list.append("Action items for next shift: None\n")
 
     for num, incident_numbers in enumerate(group_incidents, 1):
 
