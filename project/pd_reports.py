@@ -164,7 +164,9 @@ def make_incidents_dict(incidents_list):
     return incidents_dict, uniq_incidents_numbers_list
 
 
-def pretty_print_report(incidents_dict, group_incidents):
+def generate_report_list(incidents_dict, group_incidents):
+
+    report_list = []
 
     # get total number of incidents:
     inc_cntr = 0
@@ -174,9 +176,9 @@ def pretty_print_report(incidents_dict, group_incidents):
         else:
             inc_cntr += 1
 
-    # PRINT REPORT HEADER:
-    print("Total number of incidents: {0}\n".format(inc_cntr))
-    print("Action items for next shift:\n")
+    # REPORT HEADER:
+    report_list.append("Total number of incidents: {0}\n".format(inc_cntr))
+    report_list.append("Action items for next shift:\n")
 
     for num, incident_numbers in enumerate(group_incidents, 1):
 
@@ -192,36 +194,39 @@ def pretty_print_report(incidents_dict, group_incidents):
                 hostname_txt = v
 
         # BEGIN PRETTY PRINTING:
-        print("-" * 100)
-        print("{0}) Incident(s) number:\t{1}".format(num, group_incidents_txt))
-        print("Opened on:\t\t{0}".format(incidents_dict[incident_numbers[0]]['created_on']))
+        report_list.append("-" * 100)
+        report_list.append("{0}) Incident(s) number:\t{1}".format(num, group_incidents_txt))
+        report_list.append("Opened on:\t\t{0}".format(incidents_dict[incident_numbers[0]]['created_on']))
 
-        print("Host:\t\t\t{0}".format(hostname_txt))
-        print("Service:\t\t\t")
+        report_list.append("Host:\t\t\t{0}".format(hostname_txt))
+        report_list.append("Service:\t\t\t")
 
-        print("Status:\t\t\t{0}".format(incidents_dict[incident_numbers[0]]['status']))
+        report_list.append("Status:\t\t\t{0}".format(incidents_dict[incident_numbers[0]]['status']))
 
         # last_status_change_by = incidents_dict[incident_numbers[0]]['last_status_change_by']['name'] if incidents_dict[incident_numbers[0]]['last_status_change_by'] else 'auto'
-        # print("Last status changed by: {0}".format(last_status_change_by))
+        # report_list.append("Last status changed by: {0}".format(last_status_change_by))
 
-        # print("Last status changed on: {0}".format(incidents_dict[incident_numbers[0]]['last_status_change_on']))
+        # report_list.append("Last status changed on: {0}".format(incidents_dict[incident_numbers[0]]['last_status_change_on']))
 
-        print("Details:")
-        print("    description:\t\t{0}".format(description_txt))
-        print("    PD link:\t\t{0}".format(incidents_dict[incident_numbers[0]]['html_url']))
+        report_list.append("Details:")
+        report_list.append("    description:\t\t{0}".format(description_txt))
+        report_list.append("    PD link:\t\t{0}".format(incidents_dict[incident_numbers[0]]['html_url']))
 
-        print('Notes:\t\tNone')
-        print('Ticket number:\tNone')
-        print('Next actions:\tNone')
+        report_list.append('Notes:\t\tNone')
+        report_list.append('Ticket number:\tNone')
+        report_list.append('Next actions:\tNone')
 
-    print("-" * 100)
+    report_list.append("-" * 100)
+
+    return report_list
 
 
 def get_report(time_since, time_until):
     incidents_obj = get_incidents(time_since, time_until)
     incidents_list = incidents_obj['incidents']
     incidents_dict, group_incidents = make_incidents_dict(incidents_list)
-    pretty_print_report(incidents_dict, group_incidents)
+    report_list = generate_report_list(incidents_dict, group_incidents)
+    return report_list
 
 
 def main():
@@ -229,8 +234,8 @@ def main():
     time_since = '2015-08-16 09:55:30Z'
     time_until = '2015-08-17 09:55:30Z'
 
-    get_report(time_since, time_until)
-
+    for line in get_report(time_since, time_until):
+        print(line)
 
 if __name__ == "__main__":
     main()
