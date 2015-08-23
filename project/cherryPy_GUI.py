@@ -6,12 +6,16 @@ import os, os.path
 import time
 import graphiteParser
 import name_resolver_se
+import pd_reports
 from pprint import pprint as pp
 
 
-#Global variables.
+# Global variables.
 GRAPHITE_DB = "../all_data_column.txt"
 env = Environment(loader=FileSystemLoader('templates'))
+
+# GLOBAL FUNCTION FOR PD REPORTS, JINJA2:
+env.globals['pd_report_global'] = pd_reports.get_report
 
 
 class Root:
@@ -31,7 +35,7 @@ class Root:
     def gse_result(self, queryParameters=None):
         tmpl = env.get_template('index_gse_result.html')
 
-        #TODO: add chech for several spaces.
+        #TODO: add check for ending space.
         queryParameters_list = queryParameters.strip().split(" ")
         metricsFound = graphiteParser.graphiteFileParser(GRAPHITE_DB, queryParameters_list)
 
@@ -62,6 +66,14 @@ class Root:
             host_name_dict = name_resolver_se.resolve_server_name(server_name_form)
 
         return tmpl.render(server_name_form_to_tmpl=server_name_form, host_name_dict_to_tmpl=host_name_dict)
+
+
+    @cherrypy.expose
+    def pd_report_generator(self, form_time_since="", form_time_until=""):
+        tmpl = env.get_template('pd_report.html')
+
+        return tmpl.render(time_since=form_time_since, time_until=form_time_until)
+
 
 
 if __name__ == '__main__':
