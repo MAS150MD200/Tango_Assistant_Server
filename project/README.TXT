@@ -21,6 +21,14 @@ ____________________
 
 
 ____________________
+httpd conf:
+[root@us0101amo099 ~]# cat /etc/httpd/conf.d/tango_assistant_server.conf
+ProxyPass /TAS http://127.0.0.1:8080/TAS
+ProxyPassReverse /TAS http://127.0.0.1:8080/TAS
+____________________
+
+
+____________________
 # RUN TAS:
 USE SCREEN.
 
@@ -31,4 +39,8 @@ source ./venv/bin/activate
 
 cd /root/graphite_search_engine/project
 python cherryPy_GUI.py
+
+ctrl-a + d
 ____________________
+
+
