@@ -210,14 +210,14 @@ def generate_report_list(incidents_dict, group_incidents):
 
             # try to resolve hostname.
             # hostname could be like "us0101abs001" or "us0101abs001.tangome.gbl" or "ip-172-16-148-51" or None or something else.
-            pp(service_names_dict)
             if hostname_txt:
-                hostname_parts = re.search(r'(\w{2})(\d{4})(\w{1,5})(\d{3}).*', hostname_txt)
+                # hostname_parts = re.search(r'(\w{2})(\d{4})(\w{1,5})(\d{3}).*', hostname_txt)
+                hostname_parts = re.search(r'([a-z]{2})(\d{4})([a-z]{1,5})(\d+).*', hostname_txt)
 
                 if hostname_parts:
                     service_part = hostname_parts.group(3)
-                    # debug.
                     print(service_part)
+
 
                     # try to use cache:
                     if service_part in service_names_dict:
@@ -226,9 +226,13 @@ def generate_report_list(incidents_dict, group_incidents):
                     else:
                         try:
                             service_names_dict[service_part] = name_resolver_se.resolve_server_name(service_part)['5Service Type'][0]
+                            servicename_txt = service_names_dict[service_part]
                         except Exception:
                             service_names_dict[service_part] = ""
 
+                    # debug.
+                    # pp(service_names_dict)
+                    # print(servicename_txt)
 
         # BEGIN PRETTY PRINTING:
         report_list.append("-" * 100)

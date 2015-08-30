@@ -32,8 +32,13 @@ ____________________
 # RUN TAS:
 USE SCREEN.
 
+screen -ls
+screen -r
+
 git clone https://github.com/MAS150MD200/Tango_Assistant_Server.git
 
+
+RUN under virtual environment:
 cd /root/graphite_search_engine/
 source ./venv/bin/activate
 
