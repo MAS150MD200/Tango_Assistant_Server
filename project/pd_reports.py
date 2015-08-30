@@ -1,6 +1,8 @@
 __author__ = 'Antonio'
 
 import requests
+import re
+import name_resolver_se
 # import arrow
 # from datetime import datetime
 from pprint import pprint as pp
@@ -136,21 +138,19 @@ def make_incidents_dict(incidents_list):
     incidents_group_dict = {}
 
     for incident in incidents_list:
-
         # ignore Music-PIX.
         if incident['trigger_summary_data'].get('description'):
             if "Music-Pix" in incident['trigger_summary_data']['description']:
                 continue
 
-        else:
-            # add incident to dictionary.
-            incidents_dict[incident['incident_number']] = incident
+        # add incident to dictionary.
+        incidents_dict[incident['incident_number']] = incident
 
-            # create incidents group dictionary.
-            if incident['incident_key'] not in incidents_group_dict:
-                incidents_group_dict[incident['incident_key']] = []
+        # create incidents group dictionary.
+        if incident['incident_key'] not in incidents_group_dict:
+            incidents_group_dict[incident['incident_key']] = []
 
-            incidents_group_dict[incident['incident_key']].append(incident['incident_number'])
+        incidents_group_dict[incident['incident_key']].append(incident['incident_number'])
 
     # extract list of incidents numbers from incidents_group_dict.
     uniq_incidents_numbers_list = []
@@ -166,11 +166,12 @@ def make_incidents_dict(incidents_list):
 
 def generate_report_list(incidents_dict, group_incidents):
 
+    # result report list.
     report_list = []
 
     # get total number of incidents:
     inc_cntr = 0
-    for inc in group_incidents:
+    for inc in group_incidents:  # element of group_incidents could be a list too.
         if isinstance(inc, list):
             inc_cntr += len(inc)
         else:
@@ -180,42 +181,76 @@ def generate_report_list(incidents_dict, group_incidents):
     report_list.append("Total number of incidents: {0}\n".format(inc_cntr))
     report_list.append("Action items for next shift: None\n")
 
+    # iterate over group_incidents list:
+    service_names_dict = {}  # this will act like a cache for service name resolver.
     for num, incident_numbers in enumerate(group_incidents, 1):
 
-        group_incidents_txt = ",".join(map(str, incident_numbers))
+        # one if result report item:
+        group_incidents_txt = ",".join(map(str, incident_numbers))  # list of inc_num to string with "," as a delimiter.
 
-        # parse details section:
+        # parse details(trigger_summary_data) section:
         trigger_summary_data = incidents_dict[incident_numbers[0]]['trigger_summary_data']
         hostname_txt = ""
+        servicename_txt = ""
         for k, v in trigger_summary_data.items():
-            if k in ["subject", "description"]:  # filter details.
+            if k in ["subject"]:  # alert from nagios.
                 description_txt = v
-            elif k in ["HOSTNAME"]:
+            elif k in ["HOSTNAME"]:  # alert from nagios.
                 hostname_txt = v
+            elif k in ["description"]:  # alert from NewRelic.
+                description_txt = v
+
+                # get ecomm hostname.
+                new_relic_host = re.search(r'(ip-\d{1,3}-\d{1,3}-\d{1,3}-\d{1,3})', v)
+                hostname_txt = new_relic_host.group(0) if new_relic_host else hostname_txt
+
+                # get ecomm service name.
+                ecomm_service = re.search(r'(eCommerce-\w*)', v)
+                servicename_txt = ecomm_service.group(0) if ecomm_service else servicename_txt
+
+            # try to resolve hostname.
+            # hostname could be like "us0101abs001" or "us0101abs001.tangome.gbl" or "ip-172-16-148-51" or None or something else.
+            pp(service_names_dict)
+            if hostname_txt:
+                hostname_parts = re.search(r'(\w{2})(\d{4})(\w{1,5})(\d{3}).*', hostname_txt)
+
+                if hostname_parts:
+                    service_part = hostname_parts.group(3)
+                    # debug.
+                    print(service_part)
+
+                    # try to use cache:
+                    if service_part in service_names_dict:
+                        servicename_txt = service_names_dict[service_part]
+                    # ask resolver:
+                    else:
+                        try:
+                            service_names_dict[service_part] = name_resolver_se.resolve_server_name(service_part)['5Service Type'][0]
+                        except Exception:
+                            service_names_dict[service_part] = ""
+
 
         # BEGIN PRETTY PRINTING:
         report_list.append("-" * 100)
-        report_list.append("{0}) Incident(s) number:\t{1}".format(num, group_incidents_txt))
-        report_list.append("Opened on:\t\t{0}".format(incidents_dict[incident_numbers[0]]['created_on']))
-        report_list.append("Description:\t\t{0}".format(description_txt))
+        report_list.append("{0}) Incident(s) number: {1}".format(num, group_incidents_txt))
+        report_list.append("Opened on: {0}".format(incidents_dict[incident_numbers[0]]['created_on']))
+        report_list.append("Description: {0}".format(description_txt))
 
-        report_list.append("Host:\t\t\t{0}".format(hostname_txt))
-        report_list.append("Service:\t\t\t")
+        report_list.append("Host: {0}".format(hostname_txt))
+        report_list.append("Service: {0}".format(servicename_txt))
 
-        report_list.append("Status:\t\t\t{0}".format(incidents_dict[incident_numbers[0]]['status']))
+        report_list.append("Status: {0}".format(incidents_dict[incident_numbers[0]]['status']))
 
         # last_status_change_by = incidents_dict[incident_numbers[0]]['last_status_change_by']['name'] if incidents_dict[incident_numbers[0]]['last_status_change_by'] else 'auto'
         # report_list.append("Last status changed by: {0}".format(last_status_change_by))
-
         # report_list.append("Last status changed on: {0}".format(incidents_dict[incident_numbers[0]]['last_status_change_on']))
-
         # report_list.append("Details:")
 
-        report_list.append("PD link:\t\t{0}".format(incidents_dict[incident_numbers[0]]['html_url']))
+        report_list.append("PD link: {0}".format(incidents_dict[incident_numbers[0]]['html_url']))
 
-        report_list.append('Details:\t\tNone')
-        report_list.append('Ticket number:\tNone')
-        report_list.append('Next actions:\tNone')
+        report_list.append('Details: None')
+        report_list.append('Ticket number: None')
+        report_list.append('Next actions: None')
 
     report_list.append("-" * 100)
 
@@ -232,8 +267,8 @@ def get_report(time_since, time_until):
 
 def main():
 
-    time_since = '2015-08-16 09:55:30Z'
-    time_until = '2015-08-17 09:55:30Z'
+    time_since = '2015-08-26 05:00:00Z'
+    time_until = '2015-08-26 18:00:00Z'
 
     for line in get_report(time_since, time_until):
         print(line)

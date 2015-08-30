@@ -110,6 +110,8 @@ def resolve_server_name(server_name):
     html_content = getContent(URL, USERNAME, PASSWORD)
     convention_dict = create_conventions_dict(html_content)
 
+    server_name = str(server_name).strip()
+
     if re.search("^[a-z]{2}\d{4}$", server_name):
         server_name = server_name + "."*6
     elif re.search("^[a-z]+$", server_name):
@@ -138,10 +140,12 @@ def resolve_server_name(server_name):
         for k2, v2 in convention_dict.items():
             for k3,v3 in v2.items():
                 if v1 == k3[:-3]:                   # remove random number.
-                    print(k1, v1, k3, v3)
+                    # debug.
+                    # print(k1, v1, k3, v3)
                     host_name_dict_result[k1].append(v3)
                 elif (server_name[6] + v1) == k3[:-3]:   # (server_name[6] + v1) workaround for Service Types.
-                    print(k1, v1, k3, v3)
+                    # debug.
+                    # print(k1, v1, k3, v3)
                     host_name_dict_result[k1].append(v3)
         if not host_name_dict_result[k1]:
             host_name_dict_result[k1] = ["..."]

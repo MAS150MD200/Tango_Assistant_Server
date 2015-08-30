@@ -14,7 +14,6 @@ def graphiteFileParser(filename, args):
     # print(filename)
     # pp(args)
 
-    #TODO: check args for multiple spaces.
     pattern_string_list = ["^"]
 
     for script_arg in args:
