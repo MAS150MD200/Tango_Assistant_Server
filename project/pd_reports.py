@@ -2,10 +2,12 @@ __author__ = 'Antonio'
 
 import requests
 import re
+from pytz import timezone
+from datetime import datetime
+from pprint import pprint as pp
 import name_resolver_se
 # import arrow
-# from datetime import datetime
-from pprint import pprint as pp
+
 
 """
 curl -H "Content-type: application/json" -H "Authorization: Token token=VCRX6FPqypcrDqw1DGP3" -X GET -G \
@@ -19,11 +21,15 @@ curl -H "Content-type: application/json" -H "Authorization: Token token=VCRX6FPq
 """
 
 
-def get_incidents(time_since, time_until):
+def get_incidents(time_since, time_until, from_tz):
 
     # TODO:
-    # simple time parse:
+    # simple time validation:
     # pass
+
+    # convert date to UTC timezone:
+    time_since_utc = convert_tz(time_since, from_tz)
+    time_until_utc = convert_tz(time_until, from_tz)
 
 
     URL = "https://tango.pagerduty.com/api/v1/incidents"
@@ -31,8 +37,8 @@ def get_incidents(time_since, time_until):
     HEADERS = {'Content-type': 'application/json',
            'Authorization': 'Token token={0}'.format(TOKEN)}
 
-    PAYLOAD = {'since': time_since,  # '2015-08-16T09:55:30Z'
-           'until': time_until,  # '2015-08-17T09:55:30Z'
+    PAYLOAD = {'since': time_since_utc,  # '2015-08-16T09:55:30Z'
+           'until': time_until_utc,  # '2015-08-17T09:55:30Z'
            'sort_by': 'created_on',
            'limit': 100,    #max
            'offset': 0,
@@ -216,7 +222,8 @@ def generate_report_list(incidents_dict, group_incidents):
 
                 if hostname_parts:
                     service_part = hostname_parts.group(3)
-                    print(service_part)
+                    # debug.
+                    # print(service_part)
 
 
                     # try to use cache:
@@ -237,7 +244,14 @@ def generate_report_list(incidents_dict, group_incidents):
         # BEGIN PRETTY PRINTING:
         report_list.append("-" * 100)
         report_list.append("{0}) Incident(s) number: {1}".format(num, group_incidents_txt))
-        report_list.append("Opened on: {0}".format(incidents_dict[incident_numbers[0]]['created_on']))
+
+        # convert UTC to PDT and MSK timezones:
+        # report_list.append("Opened on: {0}".format(incidents_dict[incident_numbers[0]]['created_on']))
+        created_on_UTC = incidents_dict[incident_numbers[0]]['created_on']
+        created_on_PDT = convert_tz(created_on_UTC, 'UTC', 'US/Pacific')
+        created_on_MSK = convert_tz(created_on_UTC, 'UTC', 'Europe/Moscow')
+        report_list.append("Opened on: {1} | {2}".format(created_on_UTC, created_on_PDT, created_on_MSK))
+
         report_list.append("Description: {0}".format(description_txt))
 
         report_list.append("Host: {0}".format(hostname_txt))
@@ -261,20 +275,52 @@ def generate_report_list(incidents_dict, group_incidents):
     return report_list
 
 
-def get_report(time_since, time_until):
-    incidents_obj = get_incidents(time_since, time_until)
+def get_report(time_since, time_until, from_tz):
+    incidents_obj = get_incidents(time_since, time_until, from_tz)
     incidents_list = incidents_obj['incidents']
     incidents_dict, group_incidents = make_incidents_dict(incidents_list)
     report_list = generate_report_list(incidents_dict, group_incidents)
     return report_list
 
 
+def convert_tz(input_date, from_tz, to_tz='UTC'):
+
+    # time validation:
+    fmt_wo_tz = "%Y-%m-%d %H:%M:%S"
+    # fmt_with_tz = "%Y-%m-%d %H:%M:%S%Z%z"
+    fmt_with_tz = "%Y-%m-%d %H:%M:%S%Z"
+    date_fmt_re = re.compile(r'(\d{4}-\d{2}-\d{2}).(\d{2}:\d{2}:\d{2})')
+
+    input_date_re = date_fmt_re.match(input_date)
+    if input_date_re:
+        input_date_re = input_date_re.group(1) + " " + input_date_re.group(2)   # 2015-08-31T16:06:37Z -> 2015-08-31 16:06:37
+
+    # parse time:
+    input_date_re_wo_tz = datetime.strptime(input_date_re, fmt_wo_tz)
+
+    # add timezone info:
+    input_date_re_with_tz = timezone(from_tz).localize(input_date_re_wo_tz)
+
+    # convert input time to UTC time:
+    input_date_re_UTC_tz = input_date_re_with_tz.astimezone(timezone(to_tz))
+
+    # debug:
+    # print(input_date_re_with_tz.strftime(fmt_with_tz), "->", input_date_re_UTC_tz.strftime(fmt_with_tz))
+
+    return(input_date_re_UTC_tz.strftime(fmt_with_tz))
+
+
 def main():
 
-    time_since = '2015-08-26 05:00:00Z'
-    time_until = '2015-08-26 18:00:00Z'
+    # time_since = '2015-08-26 05:00:00Z'
+    # time_until = '2015-08-26 18:00:00Z'
 
-    for line in get_report(time_since, time_until):
+    # input parameters:
+    time_since = '2015-08-31 07:00:00'
+    time_until = '2015-08-31 21:00:00'
+    from_tz = 'Europe/Moscow'
+
+    for line in get_report(time_since, time_until, from_tz):
         print(line)
 
 if __name__ == "__main__":

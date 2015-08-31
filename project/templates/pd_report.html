@@ -27,23 +27,36 @@
         <form class="form-signin" method="get" action="pd_report_generator">
 
             <div class="row">
-                <div class="col-lg-6">
-
+                <div class="col-lg-4">
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon1">Time since:</span>
                         <input id="time_since" name="form_time_since" value="{{ form_time_since_to_tmpl }}" class="form-control" placeholder="example: 2015-08-17 09:55:30Z" required autofocus aria-describedby="basic-addon1">
                     </div>
-
                 </div>
 
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon2">Time until:</span>
                         <input id="time_until" name="form_time_until" value="{{ form_time_until_to_tmpl }}" class="form-control" placeholder="example: 2015-08-17 09:55:30Z" required autofocus  aria-describedby="basic-addon2">
                     </div>
-
                 </div>
+
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon3">Timezone:</span>
+                        <select class="form-control" id="tz_id" name="form_timezone">
+                            <option value="UTC">UTC (+0)</option>
+                            <option value="US/Pacific">PDT (-7)</option>
+                            <option value="Europe/Moscow">MSK (+3)</option>
+                        </select>
+                    </div>
+                </div>
+
             </div>
+
+
+
+
 
             <br>
             <button class="btn btn-primary" type="submit">Get report</button>

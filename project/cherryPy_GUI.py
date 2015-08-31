@@ -66,14 +66,14 @@ class Root:
 
 
     @cherrypy.expose
-    def pd_report_generator(self, form_time_since="", form_time_until=""):
+    def pd_report_generator(self, form_time_since="", form_time_until="", form_timezone=""):
         tmpl = env.get_template('pd_report.html')
 
-        print(form_time_since, form_time_until)
+        print(form_time_since, form_time_until, form_timezone)
 
         report_list = []
         if form_time_since and form_time_until:
-            report_list = pd_reports.get_report(form_time_since, form_time_until)
+            report_list = pd_reports.get_report(form_time_since, form_time_until, form_timezone)
 
         return tmpl.render(form_time_since_to_tmpl=form_time_since, form_time_until_to_tmpl=form_time_until, report_list_to_tmpl=report_list)
 
