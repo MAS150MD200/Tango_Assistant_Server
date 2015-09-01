@@ -75,7 +75,10 @@ class Root:
         if form_time_since and form_time_until:
             report_list = pd_reports.get_report(form_time_since, form_time_until, form_timezone)
 
-        return tmpl.render(form_time_since_to_tmpl=form_time_since, form_time_until_to_tmpl=form_time_until, report_list_to_tmpl=report_list)
+        return tmpl.render(form_time_since_to_tmpl=form_time_since,
+                           form_time_until_to_tmpl=form_time_until,
+                           form_timezon_to_tmpl=form_timezone,
+                           report_list_to_tmpl=report_list)
 
 
 if __name__ == '__main__':

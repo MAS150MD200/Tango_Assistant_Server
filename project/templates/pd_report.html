@@ -45,9 +45,9 @@
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon3">Timezone:</span>
                         <select class="form-control" id="tz_id" name="form_timezone">
-                            <option value="UTC">UTC (+0)</option>
-                            <option value="US/Pacific">PDT (-7)</option>
-                            <option value="Europe/Moscow">MSK (+3)</option>
+                            <option {% if form_timezon_to_tmpl=="UTC"%} selected {% endif %} value="UTC">UTC (+0)</option>
+                            <option {% if form_timezon_to_tmpl=="US/Pacific"%} selected {% endif %} value="US/Pacific">PDT (-7)</option>
+                            <option {% if form_timezon_to_tmpl=="Europe/Moscow"%} selected {% endif %} value="Europe/Moscow">MSK (+3)</option>
                         </select>
                     </div>
                 </div>
