@@ -31,23 +31,56 @@ def get_incidents(time_since, time_until, from_tz):
     time_since_utc = convert_tz(time_since, from_tz)
     time_until_utc = convert_tz(time_until, from_tz)
 
+    LIMIT = 100         # MAX possible value.
+    offset = 0          # start value.
+    incnd_cnt = 1       # start value. Need to trigger first while loop.
+    r_dict_list = []    # list of response dicts, in case of total > limit.
 
-    URL = "https://tango.pagerduty.com/api/v1/incidents"
-    TOKEN = "VCRX6FPqypcrDqw1DGP3"
-    HEADERS = {'Content-type': 'application/json',
-           'Authorization': 'Token token={0}'.format(TOKEN)}
+    cntr = 1
+    while incnd_cnt > 0:
 
-    PAYLOAD = {'since': time_since_utc,  # '2015-08-16T09:55:30Z'
-           'until': time_until_utc,  # '2015-08-17T09:55:30Z'
-           'sort_by': 'created_on',
-           'limit': 100,    #max
-           'offset': 0,
-           'fields': 'incident_number,incident_key,status,created_on,html_url,last_status_change_by,last_status_change_on,trigger_summary_data'}
+        URL = "https://tango.pagerduty.com/api/v1/incidents"
+        TOKEN = "VCRX6FPqypcrDqw1DGP3"
+        HEADERS = {'Content-type': 'application/json',
+               'Authorization': 'Token token={0}'.format(TOKEN)}
 
-    r = requests.get(URL, headers=HEADERS, params=PAYLOAD)
+        PAYLOAD = {'since': time_since_utc,  # '2015-08-16T09:55:30Z'
+               'until': time_until_utc,  # '2015-08-17T09:55:30Z'
+               'sort_by': 'created_on',
+               'limit': LIMIT,  #max
+               'offset': offset,
+               'fields': 'incident_number,incident_key,status,created_on,html_url,last_status_change_by,last_status_change_on,trigger_summary_data'}
+
+        r = requests.get(URL, headers=HEADERS, params=PAYLOAD)
+
+        r_dict = r.json()
+        # debug.
+        # pp(r_dict)
+        r_dict_list.append(r_dict)  # RESULT LIST OF DICTS.
+        # debug.
+        # print(len(r_dict_list))
+
+        # debug.
+        # print("offset", offset)
+
+        offset = cntr * LIMIT
+        incnd_cnt = r_dict["total"] - offset
+        cntr += 1
+
+        # prevent Pager Duty DoS:
+        if offset > 500:
+            break
+
     # debug.
-    # pp(r.json())
-    return r.json()
+    # pp(r_dict_list)
+
+    # merge list of dicts to one big dict:
+    merged_list = []
+    for element in r_dict_list:
+        merged_list.extend(element['incidents'])
+    merged_dict = {'incidents': merged_list}
+
+    return merged_dict
 
 
 def make_incidents_dict(incidents_list):
@@ -316,8 +349,8 @@ def main():
     # time_until = '2015-08-26 18:00:00Z'
 
     # input parameters:
-    time_since = '2015-08-31 07:00:00'
-    time_until = '2015-08-31 21:00:00'
+    time_since = '2015-09-02 07:00:00'
+    time_until = '2015-09-02 21:00:00'
     from_tz = 'Europe/Moscow'
 
     for line in get_report(time_since, time_until, from_tz):
