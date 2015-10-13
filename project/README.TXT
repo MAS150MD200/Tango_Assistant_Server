@@ -1,6 +1,8 @@
 
 # TODO: make jinja templates more pretty.
 
+TEST
+
 ____________________
 # on grafana server:
 
