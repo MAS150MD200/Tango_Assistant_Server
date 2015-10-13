@@ -1,10 +1,8 @@
 
 # TODO: make jinja templates more pretty.
 
-TEST
-
 ____________________
-# on grafana server:
+# on grafana server(us0101amo099.tangome.gbl):
 
 name_resolver_se.py
 URL = "http://grafana.tangome.gbl/TAS/static/TangoInfrastructureNamingConventionEngineeringTango.htm"
@@ -48,6 +46,21 @@ cd /root/graphite_search_engine/project
 python cherryPy_GUI.py
 
 ctrl-a + d
+____________________
+
+
+
+____________________
+# requirements.txt(13.10.2015)
+# pip freeze > /tmp/requirements.txt
+# pip install -r /tmp/requirements.txt
+
+beautifulsoup4==4.4.0
+CherryPy==3.8.0
+Jinja2==2.7.3
+MarkupSafe==0.23
+pytz==2015.4
+requests==2.7.0
 ____________________
 
 
