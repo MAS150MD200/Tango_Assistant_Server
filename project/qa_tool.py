@@ -12,7 +12,7 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
     # appname - is not used in this function.
 
     db = create_engine('mysql://{0[USER]}:{0[PASSWORD]}@{0[DB_HOST_TUNNEL]}/{0[DB_NAME]}'.format(db_conn_dict),
-                       echo=False)
+                       echo=True)
 
     metadata = MetaData()
     metadata.bind = db
@@ -28,19 +28,32 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
     #     group_by('SERVER_NAME'). \
     #     order_by(asc('APPLICATION_NAME'), desc('VERSION'), asc('SERVER_NAME'))
 
-    s = select([
-        ver_hist_table.c.appname.label('APPLICATION_NAME'),
-        ver_hist_table.c.servername.label('SERVER_NAME'),
-        ver_hist_table.c.version.label('VERSION'),
-        func.max(ver_hist_table.c.timestamp).label('MAX_TIMESTAMP')]). \
-        group_by('SERVER_NAME'). \
-        order_by(asc('APPLICATION_NAME'), desc(ver_hist_table.c.version * 1), asc('SERVER_NAME'))   # workaround for numeric sorting.
+    # s = select([
+    #     ver_hist_table.c.appname.label('APPLICATION_NAME'),
+    #     ver_hist_table.c.servername.label('SERVER_NAME'),
+    #     ver_hist_table.c.version.label('VERSION'),
+    #     func.max(ver_hist_table.c.timestamp).label('MAX_TIMESTAMP')]). \
+    #     group_by('SERVER_NAME'). \
+    #     order_by(asc('APPLICATION_NAME'), desc(ver_hist_table.c.version * 1), asc('SERVER_NAME'))   # workaround for numeric sorting.
 
     # DEBUG.
-    print(s)
+    # print(s)
 
     # get ResultProxy object:
-    rs = s.execute()
+    # rs = s.execute()
+
+
+
+    # get ResultProxy object:
+    rs = db.execute("SELECT\
+     t1.appname as APPLICATION_NAME,\
+     t1.servername as SERVER_NAME,\
+     t1.version as VERSION,\
+     t1.timestamp as MAX_TIMESTAMP\
+     FROM versionhistory as t1\
+     INNER JOIN (SELECT t2.servername, MAX(t2.timestamp) as max_timestamp FROM versionhistory as t2 GROUP BY t2.servername) AS moe\
+     ON t1.servername = moe.servername AND t1.timestamp = moe.max_timestamp\
+     GROUP BY t1.servername ORDER BY t1.appname, t1.timestamp DESC")
 
     # DEBUG.
     # for row in rs:

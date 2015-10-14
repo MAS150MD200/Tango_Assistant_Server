@@ -9,6 +9,14 @@ URL = "http://grafana.tangome.gbl/TAS/static/TangoInfrastructureNamingConvention
 
 graphiteParser.py
 FILE_NAME = "../all_data_column.txt"
+
+config.py
+    USER:
+    PASSWORD:
+
+qa_tool.py
+    DB_HOST_TUNNEL -> DB_HOST
+
 ____________________
 
 
@@ -30,12 +38,22 @@ ____________________
 
 ____________________
 # RUN TAS:
+
+work directory: /root/graphite_search_engine
+
 USE SCREEN.
 
 screen -ls
 screen -r
 
+ctrl+c
+
+mv ./project ./BACKUP/project_14.10.2015
+
 git clone https://github.com/MAS150MD200/Tango_Assistant_Server.git
+
+mv ./Tango_Assistant_Server/project ./
+rm -rf ./Tango_Assistant_Server/
 
 
 RUN under virtual environment:
@@ -61,6 +79,7 @@ Jinja2==2.7.3
 MarkupSafe==0.23
 pytz==2015.4
 requests==2.7.0
+
 ____________________
 
 
