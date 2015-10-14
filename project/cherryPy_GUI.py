@@ -7,6 +7,8 @@ import time
 import graphiteParser
 import name_resolver_se
 import pd_reports
+import qa_tool
+import config
 from pprint import pprint as pp
 
 
@@ -79,6 +81,22 @@ class Root:
                            form_time_until_to_tmpl=form_time_until,
                            form_timezon_to_tmpl=form_timezone,
                            report_list_to_tmpl=report_list)
+
+
+    @cherrypy.expose
+    def qa_tool(self, form_appname="empty"):
+        tmpl = env.get_template('qa_tool.html')
+
+        result_proxy_list, appnames = qa_tool.qa_tool_get_result(appname=form_appname)
+        # DEBUG.
+        # pp(appnames)
+
+        selected_app = form_appname
+        return tmpl.render(appnames_to_tmpl=appnames,
+                           versions_to_tmpl=result_proxy_list,
+                           selected_app_to_tmpl=selected_app)
+
+
 
 
 if __name__ == '__main__':

@@ -34,10 +34,10 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
         ver_hist_table.c.version.label('VERSION'),
         func.max(ver_hist_table.c.timestamp).label('MAX_TIMESTAMP')]). \
         group_by('SERVER_NAME'). \
-        order_by(asc('APPLICATION_NAME'), asc('VERSION'), asc('SERVER_NAME'))
+        order_by(asc('APPLICATION_NAME'), desc(ver_hist_table.c.version * 1), asc('SERVER_NAME'))   # workaround for numeric sorting.
 
     # DEBUG.
-    # print(s)
+    print(s)
 
     # get ResultProxy object:
     rs = s.execute()
@@ -71,6 +71,8 @@ def qa_tool_get_result(appname=None):
     :return:
     """
 
+    # TODO: add comments to this function.
+
     # get raw result object:
     result_proxy = get_result_proxy(appname="abregistrar")
 
@@ -87,7 +89,9 @@ def qa_tool_get_result(appname=None):
     # pp(appnames)
 
     # filter result_proxy_list if necessary:
-    if appname:
+    if appname == "empty":
+        result_proxy_list = []
+    elif appname:
         result_proxy_list_filtered = list(filter(lambda x: x[0] == appname.strip(), result_proxy_list))
         result_proxy_list = result_proxy_list_filtered
 
@@ -95,7 +99,7 @@ def qa_tool_get_result(appname=None):
 
 
 def main():
-    result_proxy_list, appnames = qa_tool_get_result(appname="authConsumer")
+    result_proxy_list, appnames = qa_tool_get_result(appname="facilitator")
     pp(appnames)
     pp(result_proxy_list)
 
