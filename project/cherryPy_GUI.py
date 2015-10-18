@@ -4,6 +4,7 @@ import cherrypy
 from jinja2 import Environment, FileSystemLoader
 import os, os.path
 import time
+# import simplejson
 import graphiteParser
 import name_resolver_se
 import pd_reports
@@ -87,6 +88,7 @@ class Root:
     def qa_tool(self, form_appname="empty"):
         tmpl = env.get_template('qa_tool.html')
 
+
         result_proxy_list, appnames = qa_tool.qa_tool_get_result(appname=form_appname)
         # DEBUG.
         # pp(appnames)
@@ -97,27 +99,62 @@ class Root:
                            selected_app_to_tmpl=selected_app)
 
 
+class QAToolREST:
+
+    exposed = True
+    @cherrypy.tools.json_out()
+    def GET(self, app=None):
+
+        result_proxy_list, appnames = qa_tool.qa_tool_get_result(appname=app)
+
+        # make some changes:
+        appnames = list(map(lambda _: _.strip(), appnames))
+
+        if not app:
+            return {"appnames": appnames}
+        elif app in appnames:
+            return {"versions": result_proxy_list}
+        else:
+            return {"message": "application not found."}
 
 
 if __name__ == '__main__':
 
-    conf = {
+
+    # global conf:
+    cherrypy.config.update({'server.socket_host': '0.0.0.0',
+                            'server.socket_port': 8080,
+                            })
+
+    # app config:
+    conf_tas = {
         '/': {
             'tools.sessions.on': True,
             'tools.staticdir.root': os.path.abspath(os.getcwd())
         },
         '/static': {
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': './public'
+            'tools.staticdir.dir': './public',
         }
     }
 
-    #TODO: need to place it to the conf.
-    cherrypy.config.update({'server.socket_host': '0.0.0.0',
-                            'server.socket_port': 8080,
-                            })
+    conf_QAToolREST = {
+        '/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}
+    }
 
-    # cherrypy.quickstart(Root(),'/', conf)
-    cherrypy.quickstart(Root(),'/TAS/', conf)
+    # app tree mount:
+    cherrypy.tree.mount(
+        Root(), '/TAS/', conf_tas
+    )
 
+    cherrypy.tree.mount(
+        QAToolREST(), '/TAS/api/qa_tool/', conf_QAToolREST
+    )
+
+    # engine start:
+    cherrypy.engine.start()
+    cherrypy.engine.block()
+
+    # cherrypy.quickstart(Root(),'/', conf_tas)
+    # cherrypy.quickstart(Root(),'/TAS/', conf_tas)
 

@@ -12,7 +12,7 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
     # appname - is not used in this function.
 
     db = create_engine('mysql://{0[USER]}:{0[PASSWORD]}@{0[DB_HOST_TUNNEL]}/{0[DB_NAME]}'.format(db_conn_dict),
-                       echo=True)
+                       echo=False)
 
     metadata = MetaData()
     metadata.bind = db
@@ -68,7 +68,7 @@ def result_proxy_to_list(result_proxy = None):
         result_list.append([row.APPLICATION_NAME,
                             row.SERVER_NAME,
                             row.VERSION,
-                            row.MAX_TIMESTAMP])
+                            str(row.MAX_TIMESTAMP)])
 
     # DEBUG.
     # pp(result_list)
