@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/TAS/static/bootstrap-3.3.5-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/TAS/static/bootstrap-3.3.5-dist/css/bootstrap-theme.min.css" rel="stylesheet">
+    <!--<link href="/static/bootstrap-3.3.5-dist/css/jumbotron-narrow.css" rel="stylesheet">-->
+
+    <title></title>
+</head>
+<body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="index">Home</a></li>
+            <li role="presentation" class="active" onclick="alert('Hello world!')"><a href="#">About</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Amazon Statistics</h3>
+      </div>
+
+        <br>
+        <div class="alert alert-success" role="alert">
+        Summary Information:
+        </div>
+        {{ summary_table_html_to_tmpl }}
+
+        <br>
+
+        {% set regions = ["us-west-2","us-east-1","ap-southeast-1","ap-northeast-1","eu-west-1","ap-southeast-2","sa-east-1","eu-central-1","us-west-1"] -%}
+        {% for region in regions %}
+            <div class="alert alert-info" role="alert">
+            {{ region }}
+            </div>
+            {{ details_tables_dict_html_to_tmpl[region] }}
+        {% endfor %}
+
+
+
+    </div> <!-- /container -->
+
+
+</body>
+</html>

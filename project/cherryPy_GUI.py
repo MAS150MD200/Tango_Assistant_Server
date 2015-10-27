@@ -9,6 +9,7 @@ import graphiteParser
 import name_resolver_se
 import pd_reports
 import qa_tool
+import boto3_aws
 import config
 from pprint import pprint as pp
 
@@ -98,7 +99,28 @@ class Root:
                            versions_to_tmpl=result_proxy_list,
                            selected_app_to_tmpl=selected_app)
 
+    @cherrypy.expose
+    def amazon_statistics(self):
+        tmpl = env.get_template('aws_statistics.html')
 
+        # get data:
+        t_aws_dict = boto3_aws.get_tango_aws_dict(arg_instance_state='all')
+
+        summary_table, details_tables_dict = boto3_aws.tango_aws_dict_pretty_print(t_aws_dict, arg_aws_region='all', arg_report_type='full')
+
+        # Convert to HTML and add css to summary table:
+        summary_table_html = summary_table.get_html_string(attributes={"class": "table table-striped"})
+
+        # Convert to HTML and add css to details table:
+        details_tables_dict_html = dict((k, v.get_html_string(attributes={"class": "table table-striped"})) for k, v in details_tables_dict.items())
+
+        # return tmpl.render()
+        return tmpl.render(summary_table_html_to_tmpl=summary_table_html,
+                           details_tables_dict_html_to_tmpl=details_tables_dict_html)
+
+
+
+# RESTful API:
 class QAToolREST:
 
     exposed = True

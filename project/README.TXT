@@ -17,6 +17,9 @@ config.py
 qa_tool.py
     DB_HOST_TUNNEL -> DB_HOST
 
+boto3_aws.py
+    set password
+
 ____________________
 
 
