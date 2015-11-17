@@ -5,4 +5,6 @@ DB_CONN_DICT = {"USER":"tadmin",
                 "DB_HOST": "us0101amwd-vip001.tangome.gbl",
                 "DB_HOST_TUNNEL": "10.218.27.34",
                 "DB_NAME": "inventory",
-                "TABLE_NAME": "versionhistory"}
+                "TABLE_NAME_VERS_HIST": "versionhistory",
+                "TABLE_NAME_ACT_HIST": "actionhistory"
+                }

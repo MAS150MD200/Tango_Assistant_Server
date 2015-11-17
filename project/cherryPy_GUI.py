@@ -161,7 +161,7 @@ if __name__ == '__main__':
     }
 
     conf_QAToolREST = {
-        '/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}
+        '/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}  # HTTP methods dispatcher.
     }
 
     # app tree mount:

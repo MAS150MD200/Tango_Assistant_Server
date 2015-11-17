@@ -8,8 +8,14 @@ import config
 DB_CONN_DICT = config.DB_CONN_DICT
 
 
-def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
-    # appname - is not used in this function.
+def connect_to_db_table(db_conn_dict=DB_CONN_DICT, db_table=None):
+    """
+    Perform connection to DB table.
+
+    :param db_conn_dict:
+    :param db_table:
+    :return:
+    """
 
     db = create_engine('mysql://{0[USER]}:{0[PASSWORD]}@{0[DB_HOST_TUNNEL]}/{0[DB_NAME]}'.format(db_conn_dict),
                        echo=False)
@@ -17,7 +23,12 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
     metadata = MetaData()
     metadata.bind = db
 
-    ver_hist_table = Table(DB_CONN_DICT["TABLE_NAME"], metadata, autoload=True)
+    act_hist_table = Table(DB_CONN_DICT[db_table], metadata, autoload=True)
+
+    return db
+
+
+def get_result_proxy(db_conn_dict=DB_CONN_DICT):
 
     # s = select([
     #     ver_hist_table.c.appname.label('APPLICATION_NAME'),
@@ -42,7 +53,7 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT, appname=None):
     # get ResultProxy object:
     # rs = s.execute()
 
-
+    db = connect_to_db_table(db_table="TABLE_NAME_VERS_HIST")
 
     # get ResultProxy object:
     rs = db.execute("SELECT\
@@ -76,6 +87,48 @@ def result_proxy_to_list(result_proxy = None):
     return result_list
 
 
+def get_full_build_name_v3(db_conn_dict=DB_CONN_DICT, appname=None, servername=None, version=None):
+    """
+    Get full build name from actionhistory table, by appname and version.
+
+    :return:
+    """
+
+    db = connect_to_db_table(db_table="TABLE_NAME_ACT_HIST")
+
+    # generate table with max_id column - means final successful deploy for current server:
+    # {'max_id': 100709, 'targetapplication': 'facilitator', 'targetserver': 'us0101afc001'}
+    max_id_tbl_query = db.execute('select max(ah.id) as max_id, ah.targetapplication, ah.targetserver from actionhistory ah where\
+    targetserver = "{1}" and\
+    appname = "deploy" and\
+    actionname = "deploy" and\
+    actionresult = "OK" and\
+    actiondata = "puppet_helper deploy {0}"'.format(appname, servername))
+
+
+    max_id_tbl_query_fetch = max_id_tbl_query.fetchone()
+    max_id = max_id_tbl_query_fetch[0] if max_id_tbl_query_fetch else None
+
+    # DEBUG:
+    # pp(max_ids_tbl)
+
+    full_build_name_query = db.execute('select ah.actiondata from\
+    actionhistory ah inner join (select max(id) as max_id from actionhistory where\
+    id < {0} and\
+    appname = "prestage" and\
+    actionname = "getbuild" and\
+    actiondata LIKE "%%.{1}-%%" and\
+    actionresult = "OK") t_max_id on ah.id = t_max_id.max_id'.format(max_id, version))
+
+    full_build_name_query_fetch = full_build_name_query.fetchone()
+    full_build_name = full_build_name_query_fetch[0] if full_build_name_query_fetch else None
+
+    # DEBUG:
+    # pp(full_build_name)
+
+    return full_build_name
+
+
 def qa_tool_get_result(appname=None):
     """
     MAIN FUNCTION.
@@ -86,8 +139,11 @@ def qa_tool_get_result(appname=None):
 
     # TODO: add comments to this function.
 
+    # prepare result list:
+    result_proxy_list_w_full_vers = []
+
     # get raw result object:
-    result_proxy = get_result_proxy(appname="abregistrar")
+    result_proxy = get_result_proxy()
 
     # convert result_proxy to list:
     result_proxy_list = result_proxy_to_list(result_proxy=result_proxy)
@@ -108,10 +164,27 @@ def qa_tool_get_result(appname=None):
         result_proxy_list_filtered = list(filter(lambda x: x[0] == appname.strip(), result_proxy_list))
         result_proxy_list = result_proxy_list_filtered
 
-    return result_proxy_list, appnames
+        # insert full build name:
+        for app_data in result_proxy_list:
+            app = app_data[0]
+            srv_name = app_data[1]
+            short_vers = app_data[2]
+
+            full_vers = get_full_build_name_v3(appname=app, servername=srv_name, version=short_vers)
+            # DEBUG:
+            # print(full_vers)
+
+            app_data.insert(3, full_vers)
+            result_proxy_list_w_full_vers.append(app_data)
+
+    return result_proxy_list_w_full_vers, appnames
 
 
 def main():
+
+    full_build_name_dict = get_full_build_name_v3(appname="facilitator", servername="us0101afc001", version="178456")
+    pp(full_build_name_dict)
+
     result_proxy_list, appnames = qa_tool_get_result(appname="facilitator")
     pp(appnames)
     pp(result_proxy_list)
