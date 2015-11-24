@@ -73,7 +73,7 @@ def get_result_proxy(db_conn_dict=DB_CONN_DICT):
     return rs
 
 
-def result_proxy_to_list(result_proxy = None):
+def result_proxy_to_list(result_proxy=None):
     result_list = []
     for row in result_proxy:
         result_list.append([row.APPLICATION_NAME,
@@ -105,26 +105,30 @@ def get_full_build_name_v3(db_conn_dict=DB_CONN_DICT, appname=None, servername=N
     actionresult = "OK" and\
     actiondata = "puppet_helper deploy {0}"'.format(appname, servername))
 
-
     max_id_tbl_query_fetch = max_id_tbl_query.fetchone()
     max_id = max_id_tbl_query_fetch[0] if max_id_tbl_query_fetch else None
 
     # DEBUG:
-    # pp(max_ids_tbl)
+    # print("max_id")
+    # pp(max_id)
 
-    full_build_name_query = db.execute('select ah.actiondata from\
-    actionhistory ah inner join (select max(id) as max_id from actionhistory where\
-    id < {0} and\
-    appname = "prestage" and\
-    actionname = "getbuild" and\
-    actiondata LIKE "%%.{1}-%%" and\
-    actionresult = "OK") t_max_id on ah.id = t_max_id.max_id'.format(max_id, version))
+    try:
+        full_build_name_query = db.execute('select ah.actiondata from\
+        actionhistory ah inner join (select max(id) as max_id from actionhistory where\
+        id < {0} and\
+        appname = "prestage" and\
+        actionname = "getbuild" and\
+        actiondata LIKE "%%.{1}-%%" and\
+        actionresult = "OK") t_max_id on ah.id = t_max_id.max_id'.format(max_id, version))
+    except Exception:
+        return "No information in DB"
 
     full_build_name_query_fetch = full_build_name_query.fetchone()
     full_build_name = full_build_name_query_fetch[0] if full_build_name_query_fetch else None
 
     # DEBUG:
     # pp(full_build_name)
+
 
     return full_build_name
 
@@ -182,12 +186,13 @@ def qa_tool_get_result(appname=None):
 
 def main():
 
-    full_build_name_dict = get_full_build_name_v3(appname="facilitator", servername="us0101afc001", version="178456")
-    pp(full_build_name_dict)
+    # full_build_name_dict = get_full_build_name_v3(appname="discovery", servername="us0101adi001", version="181101")
+    # pp(full_build_name_dict)
 
-    result_proxy_list, appnames = qa_tool_get_result(appname="facilitator")
+    result_proxy_list, appnames = qa_tool_get_result(appname="discovery")
     pp(appnames)
     pp(result_proxy_list)
+
 
 if __name__ == "__main__":
     main()
