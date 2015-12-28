@@ -231,12 +231,13 @@ def generate_report_list(incidents_dict, group_incidents):
         trigger_summary_data = incidents_dict[incident_numbers[0]]['trigger_summary_data']
         hostname_txt = ""
         servicename_txt = ""
+        description_txt = ""
         for k, v in trigger_summary_data.items():
             if k in ["subject"]:  # alert from nagios.
                 description_txt = v
             elif k in ["HOSTNAME"]:  # alert from nagios.
                 hostname_txt = v
-            elif k in ["description"]:  # alert from NewRelic.
+            elif k in ["description", "SERVICEDESC"]:  # alert from NewRelic.
                 description_txt = v
 
                 # get ecomm hostname.
