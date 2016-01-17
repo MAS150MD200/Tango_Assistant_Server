@@ -18,7 +18,9 @@ qa_tool.py
     DB_HOST_TUNNEL -> DB_HOST
 
 boto3_aws.py
-    set password
+    set password - not good
+    use credentials:
+        profile_name="sre-readonly"
 
 ____________________
 

@@ -1,5 +1,4 @@
-__author__ = 'atsvetkov'
-
+#!/local/tools/scripts/aws_stat/venv/bin/python
 
 from boto3.session import Session
 from prettytable import PrettyTable
@@ -7,13 +6,27 @@ import datetime
 import argparse
 from pprint import pprint as pp
 
+__author__ = 'atsvetkov'
+
 
 def get_tango_aws_dict(default_region="us-east-1", arg_instance_state=None):
+    """
+    Return main dict - tango_aws_dict
 
-    session = Session(aws_access_key_id='',
-                      aws_secret_access_key='',
-                      region_name=default_region
-                      )
+    :param default_region:
+    :param arg_instance_state:
+    :return tango_aws_dict:
+
+
+    tango_aws_dict = {<region>:[<list of ec2_instance_dicts>]}
+    """
+
+    # session = Session(aws_access_key_id='access_key',
+    #                   aws_secret_access_key='secret_access_key',
+    #                   region_name=default_region)
+
+    # use ~/.aws/credentials:
+    session = Session(profile_name="sre-readonly", region_name=default_region)
 
     # ec2 client session (default region):
     ec2_client = session.client('ec2')
@@ -29,6 +42,7 @@ def get_tango_aws_dict(default_region="us-east-1", arg_instance_state=None):
         ec2_instances_objs = session.resource('ec2', region_name=region).instances.all()
 
         ec2_instances_list = []
+        ec2_instances_list_sorted = []
         for ec2_instance_obj in ec2_instances_objs:
             # create dict per each instance:
             ec2_instance_dict = {
@@ -55,15 +69,14 @@ def get_tango_aws_dict(default_region="us-east-1", arg_instance_state=None):
 
         try:
             # try to sort this list by multiple fields:
-            ec2_instances_list_sorted = sorted(ec2_instances_list.copy(), key=lambda _: (_["tags"]["Name"],
-                                                                                         _["tags"]["aws:autoscaling:groupName"],
-                                                                                         _["instance_type"]))
+            ec2_instances_list_sorted = sorted(ec2_instances_list.copy(),
+                                               key=lambda _: (_["tags"]["Name"],
+                                                              _["tags"]["aws:autoscaling:groupName"],
+                                                              _["instance_type"]))
         except TypeError:
             pass
 
         tango_aws_dict[region] = ec2_instances_list_sorted
-
-
 
     # DEBUG:
     # pp(tango_aws_dict)
@@ -72,6 +85,13 @@ def get_tango_aws_dict(default_region="us-east-1", arg_instance_state=None):
 
 
 def tag_parser(ec2_instance_obj_tags):
+    """
+    Parse Tag dict of each EC2 instance and select only required fields.
+
+    :param ec2_instance_obj_tags:
+    :return ec_2_instance_tags_dict:
+    ec_2_instance_tags_dict = {<tag_name>: "-"}
+    """
 
     # DEBUG:
     # pp(ec2_instance_obj_tags)
@@ -100,24 +120,42 @@ def tag_parser(ec2_instance_obj_tags):
 
 
 def tango_aws_dict_pretty_print(tango_aws_dict, arg_aws_region=None, arg_report_type=None):
+    """
+    Pretty print result (using PrettyTable).
 
-    # Define all possible AWS regions:
-    aws_regions_all = {
-        "us-east-1": ["US East (N. Virginia)", "us06"],
-        "us-west-2": ["US West (Oregon)", "us07"],
-        "us-west-1": ["US West (N. California)", "-"],
-        "eu-west-1": ["EU (Ireland)", "ie01"],
-        "eu-central-1": ["EU (Frankfurt)", "de01"],
-        "ap-southeast-1": ["Asia Pacific (Singapore)", "sg01"],
-        "ap-southeast-2": ["Asia Pacific (Sydney)", "au01"],
-        "ap-northeast-1": ["Asia Pacific (Tokyo)", "jp01"],
-        "sa-east-1": ["South America (Sao Paulo)", "br01"]}
+    Also return following tuple: (summary_table, details_tables_dict) for use in external applications.
+
+    :param tango_aws_dict:
+    :param arg_aws_region:
+    :param arg_report_type:
+    :return (summary_table, details_tables_dict):
+    """
+
+    # Get all possible ASW regions:
+    aws_regions_all = {key: [None, None] for key in tango_aws_dict.keys()}
+    # DEBUG:
+    # pp(aws_regions_all)
+
+    # Define TANGO AWS regions:
+    aws_regions_all["us-east-1"] = ["US East (N. Virginia)", "us06"]
+    aws_regions_all["us-west-2"] = ["US West (Oregon)", "us07"]
+    aws_regions_all["eu-west-1"] = ["EU (Ireland)", "ie01"]
+    aws_regions_all["eu-central-1"] = ["EU (Frankfurt)", "de01"]
+    aws_regions_all["ap-southeast-1"] = ["Asia Pacific (Singapore)", "sg01"]
+    aws_regions_all["ap-southeast-2"] = ["Asia Pacific (Sydney)", "au01"]
+    aws_regions_all["ap-northeast-1"] = ["Asia Pacific (Tokyo)", "jp01"]
+    aws_regions_all["sa-east-1"] = ["South America (Sao Paulo)", "br01"]
 
     # DEBUG:
+    # pp(aws_regions_all)
     # pp(tango_aws_dict)
 
     # create list of tuples (<region>, <number of instances>), sorted by number of instances in region:
     tango_aws_list_summary = sorted([(k, len(v)) for k, v in tango_aws_dict.items()], key=lambda _: _[1], reverse=True)
+
+    # get total number of EC2 instances in all regions:
+    tango_aws_total_ec2_instances = sum([i[1] for i in tango_aws_list_summary])
+
     # DEBUG:
     # pp(tango_aws_list_summary)
 
@@ -194,6 +232,7 @@ def tango_aws_dict_pretty_print(tango_aws_dict, arg_aws_region=None, arg_report_
     def print_summary():
         print("SUMMARY INFORMATION:")
         print(summary_table)
+        print("TOTAL NUMBER OF EC2 INSTANCES:", tango_aws_total_ec2_instances, "\n")
 
     def print_details():
         print("DETAILED INFORMATION:")
@@ -222,6 +261,11 @@ def tango_aws_dict_pretty_print(tango_aws_dict, arg_aws_region=None, arg_report_
 
 
 def main():
+    """
+    Main.
+
+    :return:
+    """
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--instance_state", help="choose state of instance", default='running', choices=['running',
